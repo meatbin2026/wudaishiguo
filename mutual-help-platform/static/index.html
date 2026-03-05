@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>人人为我，我为人人 - 学习资料互助</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="bg-shape shape-a"></div>
+  <div class="bg-shape shape-b"></div>
+  <main class="container">
+    <header class="hero">
+      <h1>人人为我，我为人人</h1>
+      <p>用积分发起资料求助，用经验线索换取奖励。</p>
+      <div id="sessionInfo" class="session">未登录</div>
+    </header>
+
+    <section class="card auth">
+      <h2>登录 / 注册</h2>
+      <div class="row">
+        <input id="username" placeholder="用户名（>=3位）" />
+        <input id="password" type="password" placeholder="密码（>=6位）" />
+      </div>
+      <div class="row buttons">
+        <button id="registerBtn">注册（赠送200积分）</button>
+        <button id="loginBtn" class="ghost">登录</button>
+        <button id="logoutBtn" class="ghost">退出</button>
+      </div>
+    </section>
+
+    <section class="card points">
+      <h2>我的积分</h2>
+      <div id="pointsText">可用: - | 冻结: - | 信誉: -</div>
+      <button id="refreshPointsBtn" class="ghost">刷新积分</button>
+    </section>
+
+    <section class="card">
+      <h2>发布任务</h2>
+      <input id="taskTitle" placeholder="任务标题" />
+      <textarea id="taskDesc" rows="3" placeholder="需求描述（只写合法渠道线索需求）"></textarea>
+      <textarea id="taskCriteria" rows="2" placeholder="验收标准（比如：至少3个可行检索路径）"></textarea>
+      <div class="row">
+        <input id="taskReward" type="number" min="10" value="30" />
+        <input id="taskDeadline" type="datetime-local" />
+      </div>
+      <button id="publishTaskBtn">发布并冻结积分</button>
+    </section>
+
+    <section class="card">
+      <div class="row split">
+        <h2>开放任务</h2>
+        <button id="refreshTasksBtn" class="ghost">刷新任务</button>
+      </div>
+      <div class="row">
+        <input id="taskSearchQ" placeholder="关键词搜索（标题/描述）" />
+      </div>
+      <div class="row">
+        <select id="taskStatusFilter">
+          <option value="open">open</option>
+          <option value="closed">closed</option>
+          <option value="auto_settled">auto_settled</option>
+          <option value="all">all</option>
+        </select>
+        <input id="taskMinReward" type="number" min="0" placeholder="最小积分" />
+        <input id="taskMaxReward" type="number" min="0" placeholder="最大积分" />
+        <select id="taskSort">
+          <option value="created_desc">最新发布</option>
+          <option value="created_asc">最早发布</option>
+          <option value="reward_desc">高积分优先</option>
+          <option value="reward_asc">低积分优先</option>
+        </select>
+      </div>
+      <div class="row">
+        <button id="taskPrevPageBtn" class="ghost">上一页</button>
+        <button id="taskNextPageBtn" class="ghost">下一页</button>
+        <div id="taskPaginationText" class="tip">第 1 页</div>
+      </div>
+      <div id="tasksList" class="list"></div>
+    </section>
+
+    <section class="card">
+      <h2>任务详情 / 回答 / 选最佳</h2>
+      <input id="detailTaskId" type="number" placeholder="输入任务ID" />
+      <button id="loadTaskBtn" class="ghost">加载详情</button>
+      <pre id="taskDetail" class="panel"></pre>
+
+      <h3>提交回答</h3>
+      <textarea id="answerContent" rows="3" placeholder="写你的资料线索、检索方法、购买渠道建议"></textarea>
+      <input id="answerLinks" placeholder='外链（逗号分隔）例如 https://a.com,https://b.com' />
+      <button id="submitAnswerBtn">提交回答</button>
+
+      <h3>选择最佳（任务发布者）</h3>
+      <input id="bestAnswerId" type="number" placeholder="最佳答案ID" />
+      <button id="selectBestBtn">确认结算</button>
+    </section>
+
+    <section class="card">
+      <h2>操作日志</h2>
+      <div id="logBox" class="log"></div>
+    </section>
+
+    <section class="card">
+      <h2>举报入口</h2>
+      <div class="row">
+        <select id="reportTargetType">
+          <option value="answer">answer</option>
+          <option value="task">task</option>
+          <option value="user">user</option>
+        </select>
+        <input id="reportTargetId" type="number" placeholder="目标ID" />
+      </div>
+      <input id="reportReason" placeholder="举报原因" />
+      <input id="reportEvidence" placeholder="证据（可选）" />
+      <button id="submitReportBtn">提交举报</button>
+    </section>
+
+    <section class="card">
+      <h2>管理员处理举报</h2>
+      <div class="row">
+        <button id="loadPendingReportsBtn" class="ghost">加载待处理举报</button>
+      </div>
+      <div class="row">
+        <select id="reportStatusFilter">
+          <option value="pending">pending</option>
+          <option value="approved">approved</option>
+          <option value="rejected">rejected</option>
+          <option value="all">all</option>
+        </select>
+        <select id="reportTargetTypeFilter">
+          <option value="all">all target</option>
+          <option value="task">task</option>
+          <option value="answer">answer</option>
+          <option value="user">user</option>
+        </select>
+      </div>
+      <div class="row">
+        <button id="reportPrevPageBtn" class="ghost">上一页</button>
+        <button id="reportNextPageBtn" class="ghost">下一页</button>
+        <div id="reportPaginationText" class="tip">第 1 页</div>
+      </div>
+      <pre id="pendingReports" class="panel"></pre>
+      <div class="row">
+        <input id="resolveReportId" type="number" placeholder="举报ID" />
+        <select id="resolveDecision">
+          <option value="approved">approved</option>
+          <option value="rejected">rejected</option>
+        </select>
+      </div>
+      <input id="resolveNote" placeholder="处理说明（可选）" />
+      <button id="resolveReportBtn">提交处理</button>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>

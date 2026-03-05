@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>简单版华容道</title>
+  <style>
+    :root {
+      --cell: 78px;
+      --gap: 6px;
+      --board-bg: #f6e7d3;
+      --frame: #8b5e3c;
+      --text: #2c221a;
+      --piece: #d58f4b;
+      --piece-cao: #c6493c;
+      --piece-selected: #2b7a78;
+      --empty: #efe2cf;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 20% 20%, #fff8ef 0%, #f3dcc1 55%, #e8c59f 100%);
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .game {
+      width: min(100%, 420px);
+      background: rgba(255, 250, 243, 0.86);
+      border: 2px solid #d9b892;
+      border-radius: 16px;
+      box-shadow: 0 10px 28px rgba(90, 60, 30, 0.16);
+      padding: 16px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+
+    .btn {
+      border: none;
+      background: #7b4f2e;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .btn:active { transform: scale(0.97); }
+
+    .board-wrap {
+      border: 10px solid var(--frame);
+      border-bottom-width: 18px;
+      border-radius: 10px;
+      background: var(--board-bg);
+      position: relative;
+      padding: 8px;
+    }
+
+    .board {
+      position: relative;
+      width: calc(var(--cell) * 4 + var(--gap) * 3);
+      height: calc(var(--cell) * 5 + var(--gap) * 4);
+      background:
+        linear-gradient(to right,
+          transparent calc(var(--cell) + var(--gap) * 0),
+          transparent calc(var(--cell) + var(--gap) * 0)
+        ),
+        var(--empty);
+      border-radius: 8px;
+      touch-action: none;
+      user-select: none;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+
+    .piece {
+      position: absolute;
+      border-radius: 10px;
+      background: linear-gradient(160deg, #e5a769 0%, var(--piece) 65%, #b67234 100%);
+      border: 2px solid #7a4922;
+      box-shadow: 0 4px 10px rgba(70, 40, 10, 0.25);
+      display: grid;
+      place-items: center;
+      color: #fff6e8;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: grab;
+      transition: left 120ms ease, top 120ms ease, transform 120ms ease;
+    }
+
+    .piece.cao {
+      background: linear-gradient(160deg, #dc6a5f 0%, var(--piece-cao) 65%, #9e2f26 100%);
+      font-size: 20px;
+    }
+
+    .piece.selected {
+      outline: 3px solid var(--piece-selected);
+      transform: translateY(-2px);
+    }
+
+    .goal {
+      width: calc(var(--cell) * 2 + var(--gap));
+      margin: 10px auto 0;
+      text-align: center;
+      color: #5c4028;
+      font-size: 12px;
+      border-top: 3px dashed #a0744f;
+      padding-top: 6px;
+    }
+
+    .tip {
+      margin-top: 12px;
+      font-size: 13px;
+      color: #5a412e;
+      line-height: 1.45;
+    }
+
+    .win {
+      margin-top: 8px;
+      padding: 10px;
+      border-radius: 8px;
+      background: #e8f6df;
+      border: 1px solid #8bbf72;
+      font-size: 14px;
+      display: none;
+    }
+
+    @media (max-width: 430px) {
+      :root {
+        --cell: 65px;
+        --gap: 5px;
+      }
+      .game { padding: 12px; }
+      h1 { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="game">
+    <h1>华容道（简单版）</h1>
+    <div class="meta">
+      <div>步数：<span id="moves">0</span></div>
+      <button id="resetBtn" class="btn" type="button">重置</button>
+    </div>
+
+    <div class="board-wrap">
+      <div id="board" class="board" aria-label="华容道棋盘"></div>
+      <div class="goal">出口</div>
+    </div>
+
+    <p class="tip">玩法：拖动棋子（上下左右）移动。目标是把 <strong>曹操</strong> 移到最底部中央位置。</p>
+    <div id="winBox" class="win"></div>
+  </main>
+
+  <script>
+    const COLS = 4;
+    const ROWS = 5;
+
+    const piecesTemplate = [
+      { id: 'cao', name: '曹操', w: 2, h: 2, x: 1, y: 0, cls: 'cao' },
+      { id: 'z1', name: '将', w: 1, h: 2, x: 0, y: 0 },
+      { id: 'z2', name: '将', w: 1, h: 2, x: 3, y: 0 },
+      { id: 'z3', name: '将', w: 1, h: 2, x: 0, y: 2 },
+      { id: 'z4', name: '将', w: 1, h: 2, x: 3, y: 2 },
+      { id: 'h1', name: '兵', w: 2, h: 1, x: 1, y: 2 },
+      { id: 'b1', name: '兵', w: 1, h: 1, x: 1, y: 3 },
+      { id: 'b2', name: '兵', w: 1, h: 1, x: 2, y: 3 },
+      { id: 'b3', name: '兵', w: 1, h: 1, x: 0, y: 4 },
+      { id: 'b4', name: '兵', w: 1, h: 1, x: 3, y: 4 }
+    ];
+
+    const boardEl = document.getElementById('board');
+    const movesEl = document.getElementById('moves');
+    const resetBtn = document.getElementById('resetBtn');
+    const winBox = document.getElementById('winBox');
+
+    const state = {
+      pieces: [],
+      selectedId: null,
+      moves: 0,
+      won: false,
+      pointer: null
+    };
+
+    let metrics = { cell: 78, gap: 6, step: 84 };
+
+    function clonePieces() {
+      return piecesTemplate.map((p) => ({ ...p }));
+    }
+
+    function updateMetrics() {
+      const style = getComputedStyle(document.documentElement);
+      metrics.cell = parseFloat(style.getPropertyValue('--cell'));
+      metrics.gap = parseFloat(style.getPropertyValue('--gap'));
+      metrics.step = metrics.cell + metrics.gap;
+    }
+
+    function buildGrid(ignoreId = null) {
+      const grid = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+      for (const p of state.pieces) {
+        if (p.id === ignoreId) continue;
+        for (let dy = 0; dy < p.h; dy++) {
+          for (let dx = 0; dx < p.w; dx++) {
+            grid[p.y + dy][p.x + dx] = p.id;
+          }
+        }
+      }
+      return grid;
+    }
+
+    function canMove(piece, dir) {
+      const dirs = {
+        up: [0, -1],
+        down: [0, 1],
+        left: [-1, 0],
+        right: [1, 0]
+      };
+      const [mx, my] = dirs[dir] || [0, 0];
+      if (!mx && !my) return false;
+
+      const nx = piece.x + mx;
+      const ny = piece.y + my;
+      if (nx < 0 || ny < 0 || nx + piece.w > COLS || ny + piece.h > ROWS) return false;
+
+      const grid = buildGrid(piece.id);
+      for (let dy = 0; dy < piece.h; dy++) {
+        for (let dx = 0; dx < piece.w; dx++) {
+          if (grid[ny + dy][nx + dx]) return false;
+        }
+      }
+      return true;
+    }
+
+    function getPieceById(id) {
+      return state.pieces.find((p) => p.id === id);
+    }
+
+    function checkWin() {
+      const cao = getPieceById('cao');
+      if (cao.x === 1 && cao.y === 3) {
+        state.won = true;
+        winBox.style.display = 'block';
+        winBox.textContent = `通关成功！你用了 ${state.moves} 步。`;
+      }
+    }
+
+    function movePiece(pieceId, dir) {
+      if (state.won) return false;
+      const piece = getPieceById(pieceId);
+      if (!piece || !canMove(piece, dir)) return false;
+
+      if (dir === 'up') piece.y -= 1;
+      if (dir === 'down') piece.y += 1;
+      if (dir === 'left') piece.x -= 1;
+      if (dir === 'right') piece.x += 1;
+
+      state.moves += 1;
+      movesEl.textContent = String(state.moves);
+      render();
+      checkWin();
+      return true;
+    }
+
+    function piecePixelStyle(piece) {
+      return {
+        left: piece.x * metrics.step,
+        top: piece.y * metrics.step,
+        width: piece.w * metrics.cell + (piece.w - 1) * metrics.gap,
+        height: piece.h * metrics.cell + (piece.h - 1) * metrics.gap
+      };
+    }
+
+    function onPointerDown(e) {
+      const pieceEl = e.currentTarget;
+      const id = pieceEl.dataset.id;
+      state.selectedId = id;
+      state.pointer = {
+        id,
+        pointerId: e.pointerId,
+        startX: e.clientX,
+        startY: e.clientY
+      };
+      if (pieceEl.setPointerCapture && e.pointerId !== undefined) {
+        pieceEl.setPointerCapture(e.pointerId);
+      }
+      render();
+    }
+
+    function onPointerUp(e) {
+      if (!state.pointer) return;
+      const p = state.pointer;
+      state.pointer = null;
+
+      const dx = e.clientX - p.startX;
+      const dy = e.clientY - p.startY;
+      const absX = Math.abs(dx);
+      const absY = Math.abs(dy);
+      const threshold = 16;
+
+      if (absX < threshold && absY < threshold) {
+        render();
+        return;
+      }
+
+      let dir;
+      if (absX > absY) {
+        dir = dx > 0 ? 'right' : 'left';
+      } else {
+        dir = dy > 0 ? 'down' : 'up';
+      }
+
+      movePiece(p.id, dir);
+      render();
+    }
+
+    function onPointerCancel() {
+      state.pointer = null;
+      render();
+    }
+
+    function render() {
+      updateMetrics();
+      boardEl.innerHTML = '';
+
+      for (const piece of state.pieces) {
+        const el = document.createElement('div');
+        el.className = `piece ${piece.cls || ''}`.trim();
+        if (state.selectedId === piece.id) el.classList.add('selected');
+        el.dataset.id = piece.id;
+        el.textContent = piece.name;
+
+        const style = piecePixelStyle(piece);
+        el.style.left = `${style.left}px`;
+        el.style.top = `${style.top}px`;
+        el.style.width = `${style.width}px`;
+        el.style.height = `${style.height}px`;
+
+        el.addEventListener('pointerdown', onPointerDown);
+
+        boardEl.appendChild(el);
+      }
+    }
+
+    function resetGame() {
+      state.pieces = clonePieces();
+      state.selectedId = null;
+      state.pointer = null;
+      state.moves = 0;
+      state.won = false;
+      movesEl.textContent = '0';
+      winBox.style.display = 'none';
+      winBox.textContent = '';
+      render();
+    }
+
+    resetBtn.addEventListener('click', resetGame);
+    window.addEventListener('pointerup', onPointerUp);
+    window.addEventListener('pointercancel', onPointerCancel);
+    window.addEventListener('resize', render);
+
+    resetGame();
+  </script>
+</body>
+</html>
