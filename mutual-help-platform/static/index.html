@@ -18,6 +18,7 @@
 
     <section class="card auth">
       <h2>登录 / 注册</h2>
+      <div class="tip">提示：首个注册账号或用户名以 <code>admin</code> 开头会成为管理员（内测机制）。</div>
       <div class="row">
         <input id="username" placeholder="用户名（>=3位）" />
         <input id="password" type="password" placeholder="密码（>=6位）" />
@@ -83,7 +84,19 @@
       <h2>任务详情 / 回答 / 选最佳</h2>
       <input id="detailTaskId" type="number" placeholder="输入任务ID" />
       <button id="loadTaskBtn" class="ghost">加载详情</button>
-      <pre id="taskDetail" class="panel"></pre>
+      <div class="row">
+        <select id="answerSort">
+          <option value="created_asc">回答时间：最早</option>
+          <option value="created_desc">回答时间：最新</option>
+          <option value="quality_desc">质量分：高到低</option>
+          <option value="quality_asc">质量分：低到高</option>
+        </select>
+        <button id="answerPrevPageBtn" class="ghost">回答上一页</button>
+        <button id="answerNextPageBtn" class="ghost">回答下一页</button>
+        <div id="answerPaginationText" class="tip">回答第 1 页</div>
+      </div>
+      <div id="taskDetail" class="panel"></div>
+      <div id="taskAnswers" class="list"></div>
 
       <h3>提交回答</h3>
       <textarea id="answerContent" rows="3" placeholder="写你的资料线索、检索方法、购买渠道建议"></textarea>
@@ -119,7 +132,16 @@
       <h2>管理员处理举报</h2>
       <div class="row">
         <button id="loadPendingReportsBtn" class="ghost">加载待处理举报</button>
+        <div id="reportResolveTip" class="tip"></div>
       </div>
+      <div class="row">
+        <button id="loadQualityRulesBtn" class="ghost">查看评分规则</button>
+        <button id="reloadQualityRulesBtn" class="ghost">重载评分规则</button>
+        <button id="loadSystemStatsBtn" class="ghost">查看系统统计</button>
+        <button id="initDemoDataBtn" class="ghost">初始化演示数据</button>
+      </div>
+      <pre id="qualityRulesBox" class="panel"></pre>
+      <pre id="systemStatsBox" class="panel"></pre>
       <div class="row">
         <select id="reportStatusFilter">
           <option value="pending">pending</option>
@@ -149,6 +171,58 @@
       </div>
       <input id="resolveNote" placeholder="处理说明（可选）" />
       <button id="resolveReportBtn">提交处理</button>
+    </section>
+
+    <section class="card">
+      <h2>我的任务</h2>
+      <div class="row">
+        <select id="myTaskMode">
+          <option value="published">我发布的</option>
+          <option value="answered">我参与的</option>
+        </select>
+        <select id="myTaskStatus">
+          <option value="all">all</option>
+          <option value="open">open</option>
+          <option value="closed">closed</option>
+          <option value="auto_settled">auto_settled</option>
+          <option value="cancelled">cancelled</option>
+        </select>
+        <button id="loadMyTasksBtn" class="ghost">加载我的任务</button>
+      </div>
+      <div class="row">
+        <button id="myTaskPrevBtn" class="ghost">上一页</button>
+        <button id="myTaskNextBtn" class="ghost">下一页</button>
+        <div id="myTaskPaginationText" class="tip">第 1 页</div>
+      </div>
+      <div id="myTasksList" class="list"></div>
+    </section>
+
+    <section class="card">
+      <h2>管理员用户管理</h2>
+      <div class="row">
+        <input id="adminUserSearchQ" placeholder="用户名关键词" />
+        <select id="adminUserStatusFilter">
+          <option value="all">all</option>
+          <option value="active">active</option>
+          <option value="banned">banned</option>
+        </select>
+        <button id="loadAdminUsersBtn" class="ghost">加载用户</button>
+      </div>
+      <div class="row">
+        <button id="adminUserPrevBtn" class="ghost">上一页</button>
+        <button id="adminUserNextBtn" class="ghost">下一页</button>
+        <div id="adminUserPaginationText" class="tip">第 1 页</div>
+      </div>
+      <div id="adminUsersList" class="list"></div>
+      <div class="row">
+        <input id="adminTargetUserId" type="number" placeholder="用户ID" />
+        <select id="adminTargetStatus">
+          <option value="active">active</option>
+          <option value="banned">banned</option>
+        </select>
+      </div>
+      <input id="adminStatusNote" placeholder="处理说明（可选）" />
+      <button id="adminUpdateUserStatusBtn">更新用户状态</button>
     </section>
   </main>
   <script src="/app.js"></script>

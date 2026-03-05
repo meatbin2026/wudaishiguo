@@ -147,6 +147,33 @@ button:hover {
   background: #f9fcff;
 }
 
+.answer-card {
+  padding: 10px;
+  border: 1px solid #d7e4f5;
+  border-radius: 10px;
+  margin-top: 8px;
+  background: #f8fbff;
+}
+
+.answer-score {
+  font-weight: 700;
+  color: #0f766e;
+}
+
+.answer-meta {
+  margin-top: 6px;
+  color: #3f5f80;
+  font-size: 12px;
+}
+
+.empty {
+  padding: 10px;
+  color: #5f7892;
+  border: 1px dashed #bfd2ea;
+  border-radius: 8px;
+  background: #f8fbff;
+}
+
 .task strong {
   color: #0d3553;
 }
@@ -175,6 +202,11 @@ button:hover {
   color: #365676;
   font-size: 13px;
   align-self: center;
+}
+
+.flash-ok {
+  color: #0f766e;
+  font-weight: 700;
 }
 
 @media (max-width: 640px) {

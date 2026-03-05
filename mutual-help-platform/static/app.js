@@ -27,7 +27,12 @@ const el = {
   tasksList: document.getElementById("tasksList"),
   detailTaskId: document.getElementById("detailTaskId"),
   loadTaskBtn: document.getElementById("loadTaskBtn"),
+  answerSort: document.getElementById("answerSort"),
+  answerPrevPageBtn: document.getElementById("answerPrevPageBtn"),
+  answerNextPageBtn: document.getElementById("answerNextPageBtn"),
+  answerPaginationText: document.getElementById("answerPaginationText"),
   taskDetail: document.getElementById("taskDetail"),
+  taskAnswers: document.getElementById("taskAnswers"),
   answerContent: document.getElementById("answerContent"),
   answerLinks: document.getElementById("answerLinks"),
   submitAnswerBtn: document.getElementById("submitAnswerBtn"),
@@ -40,6 +45,13 @@ const el = {
   reportEvidence: document.getElementById("reportEvidence"),
   submitReportBtn: document.getElementById("submitReportBtn"),
   loadPendingReportsBtn: document.getElementById("loadPendingReportsBtn"),
+  reportResolveTip: document.getElementById("reportResolveTip"),
+  loadQualityRulesBtn: document.getElementById("loadQualityRulesBtn"),
+  reloadQualityRulesBtn: document.getElementById("reloadQualityRulesBtn"),
+  loadSystemStatsBtn: document.getElementById("loadSystemStatsBtn"),
+  initDemoDataBtn: document.getElementById("initDemoDataBtn"),
+  qualityRulesBox: document.getElementById("qualityRulesBox"),
+  systemStatsBox: document.getElementById("systemStatsBox"),
   reportStatusFilter: document.getElementById("reportStatusFilter"),
   reportTargetTypeFilter: document.getElementById("reportTargetTypeFilter"),
   reportPrevPageBtn: document.getElementById("reportPrevPageBtn"),
@@ -50,15 +62,48 @@ const el = {
   resolveDecision: document.getElementById("resolveDecision"),
   resolveNote: document.getElementById("resolveNote"),
   resolveReportBtn: document.getElementById("resolveReportBtn"),
+  myTaskMode: document.getElementById("myTaskMode"),
+  myTaskStatus: document.getElementById("myTaskStatus"),
+  loadMyTasksBtn: document.getElementById("loadMyTasksBtn"),
+  myTaskPrevBtn: document.getElementById("myTaskPrevBtn"),
+  myTaskNextBtn: document.getElementById("myTaskNextBtn"),
+  myTaskPaginationText: document.getElementById("myTaskPaginationText"),
+  myTasksList: document.getElementById("myTasksList"),
+  adminUserSearchQ: document.getElementById("adminUserSearchQ"),
+  adminUserStatusFilter: document.getElementById("adminUserStatusFilter"),
+  loadAdminUsersBtn: document.getElementById("loadAdminUsersBtn"),
+  adminUserPrevBtn: document.getElementById("adminUserPrevBtn"),
+  adminUserNextBtn: document.getElementById("adminUserNextBtn"),
+  adminUserPaginationText: document.getElementById("adminUserPaginationText"),
+  adminUsersList: document.getElementById("adminUsersList"),
+  adminTargetUserId: document.getElementById("adminTargetUserId"),
+  adminTargetStatus: document.getElementById("adminTargetStatus"),
+  adminStatusNote: document.getElementById("adminStatusNote"),
+  adminUpdateUserStatusBtn: document.getElementById("adminUpdateUserStatusBtn"),
 };
 
 const taskState = { page: 1, pageSize: 10, hasNext: false, total: 0 };
 const reportState = { page: 1, pageSize: 10, hasNext: false, total: 0 };
+const detailAnswerState = { page: 1, pageSize: 5, hasNext: false, total: 0 };
+const myTaskState = { page: 1, pageSize: 5, hasNext: false, total: 0 };
+const adminUserState = { page: 1, pageSize: 10, hasNext: false, total: 0 };
 
 function log(message, data) {
   const line = `[${new Date().toLocaleTimeString()}] ${message}`;
   const extra = data ? `\n${JSON.stringify(data, null, 2)}` : "";
   el.logBox.textContent = `${line}${extra}\n${el.logBox.textContent}`;
+}
+
+function setButtonLoading(button, isLoading, loadingText = "处理中...") {
+  if (!button) return;
+  if (isLoading) {
+    button.dataset.originalText = button.textContent;
+    button.textContent = loadingText;
+    button.disabled = true;
+  } else {
+    if (button.dataset.originalText) button.textContent = button.dataset.originalText;
+    button.disabled = false;
+  }
 }
 
 function getToken() {
@@ -81,7 +126,9 @@ async function api(path, method = "GET", body) {
   });
   const payload = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw new Error(payload.error || `HTTP ${res.status}`);
+    const msg = payload.error || `HTTP ${res.status}`;
+    const code = payload.error_code ? ` [${payload.error_code}]` : "";
+    throw new Error(`${msg}${code}`);
   }
   return payload;
 }
@@ -113,6 +160,7 @@ async function refreshPoints() {
 }
 
 async function refreshTasks() {
+  setButtonLoading(el.refreshTasksBtn, true, "刷新中...");
   try {
     const params = new URLSearchParams({
       status: el.taskStatusFilter.value || "open",
@@ -135,28 +183,73 @@ async function refreshTasks() {
       `;
       div.addEventListener("click", () => {
         el.detailTaskId.value = task.id;
+        detailAnswerState.page = 1;
         loadTaskDetail();
       });
       el.tasksList.appendChild(div);
     });
+    if (data.tasks.length === 0) {
+      el.tasksList.innerHTML = '<div class="empty">暂无符合条件的任务</div>';
+    }
     taskState.hasNext = Boolean(data.pagination?.has_next);
     taskState.total = Number(data.pagination?.total || 0);
     el.taskPaginationText.textContent = `第 ${taskState.page} 页 / 共 ${taskState.total} 条`;
     log("刷新任务成功", { count: data.tasks.length, page: taskState.page, total: taskState.total });
   } catch (err) {
     log("刷新任务失败", { error: err.message });
+  } finally {
+    setButtonLoading(el.refreshTasksBtn, false);
   }
 }
 
 async function loadTaskDetail() {
   const id = Number(el.detailTaskId.value || 0);
   if (!id) return;
+  setButtonLoading(el.loadTaskBtn, true, "加载中...");
   try {
-    const data = await api(`/api/tasks/${id}`);
-    el.taskDetail.textContent = JSON.stringify(data, null, 2);
-    log("加载任务详情成功", { task_id: id, answers: data.answers.length });
+    const params = new URLSearchParams({
+      answer_page: String(detailAnswerState.page),
+      answer_page_size: String(detailAnswerState.pageSize),
+      answer_sort: el.answerSort.value || "created_asc",
+    });
+    const data = await api(`/api/tasks/${id}?${params.toString()}`);
+    const task = data.task;
+    el.taskDetail.innerHTML = `
+      <strong>#${task.id} ${task.title}</strong><br/>
+      发布者: ${task.publisher_name} | 悬赏: ${task.reward_points} | 状态: ${task.status}<br/>
+      验收: ${task.acceptance_criteria}<br/>
+      描述: ${task.description}
+    `;
+    el.taskAnswers.innerHTML = "";
+    data.answers.forEach((answer) => {
+      const meta = answer.quality_meta || {};
+      const links = Array.isArray(answer.external_links) ? answer.external_links : [];
+      const div = document.createElement("div");
+      div.className = "answer-card";
+      div.innerHTML = `
+        <strong>回答 #${answer.id} - ${answer.author_name}</strong>
+        <span class="answer-score">质量分 ${answer.quality_score}</span><br/>
+        <div>${answer.content}</div>
+        <div class="answer-meta">
+          长度加分: ${meta.length_bonus ?? 0} | 有效链接加分: ${meta.valid_link_bonus ?? 0} |
+          无效链接扣分: ${meta.invalid_link_penalty ?? 0} | 相似度扣分: ${meta.similarity_penalty ?? 0} |
+          相似度: ${meta.max_similarity ?? 0}
+        </div>
+        <div class="answer-meta">链接: ${links.join(", ") || "-"}</div>
+      `;
+      el.taskAnswers.appendChild(div);
+    });
+    if (data.answers.length === 0) {
+      el.taskAnswers.innerHTML = '<div class="empty">暂无回答，快来提交第一个优质线索</div>';
+    }
+    detailAnswerState.hasNext = Boolean(data.answers_pagination?.has_next);
+    detailAnswerState.total = Number(data.answers_pagination?.total || 0);
+    el.answerPaginationText.textContent = `回答第 ${detailAnswerState.page} 页 / 共 ${detailAnswerState.total} 条`;
+    log("加载任务详情成功", { task_id: id, answers: data.answers.length, page: detailAnswerState.page });
   } catch (err) {
     log("加载详情失败", { error: err.message });
+  } finally {
+    setButtonLoading(el.loadTaskBtn, false);
   }
 }
 
@@ -231,7 +324,24 @@ el.taskNextPageBtn.addEventListener("click", async () => {
   taskState.page += 1;
   await refreshTasks();
 });
-el.loadTaskBtn.addEventListener("click", loadTaskDetail);
+el.loadTaskBtn.addEventListener("click", async () => {
+  detailAnswerState.page = 1;
+  await loadTaskDetail();
+});
+el.answerSort.addEventListener("change", async () => {
+  detailAnswerState.page = 1;
+  await loadTaskDetail();
+});
+el.answerPrevPageBtn.addEventListener("click", async () => {
+  if (detailAnswerState.page <= 1) return;
+  detailAnswerState.page -= 1;
+  await loadTaskDetail();
+});
+el.answerNextPageBtn.addEventListener("click", async () => {
+  if (!detailAnswerState.hasNext) return;
+  detailAnswerState.page += 1;
+  await loadTaskDetail();
+});
 
 el.publishTaskBtn.addEventListener("click", async () => {
   try {
@@ -266,7 +376,11 @@ el.submitAnswerBtn.addEventListener("click", async () => {
       content: el.answerContent.value.trim(),
       external_links: links,
     });
-    log("提交回答成功", data);
+    log("提交回答成功（含质量分）", {
+      answer_id: data.answer_id,
+      quality_score: data.quality_score,
+      quality_meta: data.quality_meta,
+    });
     await loadTaskDetail();
   } catch (err) {
     log("提交回答失败", { error: err.message });
@@ -308,6 +422,7 @@ el.submitReportBtn.addEventListener("click", async () => {
 });
 
 async function loadReports() {
+  setButtonLoading(el.loadPendingReportsBtn, true, "加载中...");
   try {
     const params = new URLSearchParams({
       status: el.reportStatusFilter.value || "pending",
@@ -323,6 +438,8 @@ async function loadReports() {
     log("加载举报列表成功", { count: data.reports.length, page: reportState.page, total: reportState.total });
   } catch (err) {
     log("加载待处理举报失败", { error: err.message });
+  } finally {
+    setButtonLoading(el.loadPendingReportsBtn, false);
   }
 }
 
@@ -359,8 +476,197 @@ el.resolveReportBtn.addEventListener("click", async () => {
       note: el.resolveNote.value.trim(),
     });
     log("处理举报成功", data);
+    el.reportResolveTip.textContent = `已处理举报 #${reportId}: ${data.status}`;
+    el.reportResolveTip.className = "tip flash-ok";
+    await loadReports();
   } catch (err) {
     log("处理举报失败", { error: err.message });
+  }
+});
+
+el.loadQualityRulesBtn.addEventListener("click", async () => {
+  try {
+    const data = await api("/api/admin/quality-config");
+    el.qualityRulesBox.textContent = JSON.stringify(data, null, 2);
+    log("加载评分规则成功", { rules_version: data.rules_version });
+  } catch (err) {
+    log("加载评分规则失败", { error: err.message });
+  }
+});
+
+el.reloadQualityRulesBtn.addEventListener("click", async () => {
+  try {
+    const data = await api("/api/admin/quality-config/reload", "POST", {});
+    el.qualityRulesBox.textContent = JSON.stringify(data, null, 2);
+    log("重载评分规则成功", { rules_version: data.rules_version });
+  } catch (err) {
+    log("重载评分规则失败", { error: err.message });
+  }
+});
+
+el.loadSystemStatsBtn.addEventListener("click", async () => {
+  try {
+    const data = await api("/api/admin/system/stats");
+    el.systemStatsBox.textContent = JSON.stringify(data, null, 2);
+    log("加载系统统计成功", data.stats);
+  } catch (err) {
+    log("加载系统统计失败", { error: err.message });
+  }
+});
+
+async function loadMyTasks() {
+  setButtonLoading(el.loadMyTasksBtn, true, "加载中...");
+  try {
+    const endpoint =
+      el.myTaskMode.value === "answered" ? "/api/me/tasks/answered" : "/api/me/tasks/published";
+    const params = new URLSearchParams({
+      status: el.myTaskStatus.value || "all",
+      page: String(myTaskState.page),
+      page_size: String(myTaskState.pageSize),
+    });
+    const data = await api(`${endpoint}?${params.toString()}`);
+    myTaskState.hasNext = Boolean(data.pagination?.has_next);
+    myTaskState.total = Number(data.pagination?.total || 0);
+    el.myTaskPaginationText.textContent = `第 ${myTaskState.page} 页 / 共 ${myTaskState.total} 条`;
+    el.myTasksList.innerHTML = "";
+    data.tasks.forEach((task) => {
+      const div = document.createElement("div");
+      div.className = "task";
+      div.innerHTML = `
+        <strong>#${task.id} ${task.title}</strong><br/>
+        悬赏: ${task.reward_points} | 状态: ${task.status} | 创建: ${task.created_at}
+      `;
+      div.addEventListener("click", () => {
+        el.detailTaskId.value = task.id;
+        detailAnswerState.page = 1;
+        loadTaskDetail();
+      });
+      el.myTasksList.appendChild(div);
+    });
+    if (data.tasks.length === 0) {
+      el.myTasksList.innerHTML = '<div class="empty">暂无任务记录</div>';
+    }
+    log("加载我的任务成功", { mode: el.myTaskMode.value, page: myTaskState.page, count: data.tasks.length });
+  } catch (err) {
+    log("加载我的任务失败", { error: err.message });
+  } finally {
+    setButtonLoading(el.loadMyTasksBtn, false);
+  }
+}
+
+async function loadAdminUsers() {
+  setButtonLoading(el.loadAdminUsersBtn, true, "加载中...");
+  try {
+    const params = new URLSearchParams({
+      status: el.adminUserStatusFilter.value || "all",
+      q: el.adminUserSearchQ.value.trim(),
+      page: String(adminUserState.page),
+      page_size: String(adminUserState.pageSize),
+    });
+    const data = await api(`/api/admin/users?${params.toString()}`);
+    adminUserState.hasNext = Boolean(data.pagination?.has_next);
+    adminUserState.total = Number(data.pagination?.total || 0);
+    el.adminUserPaginationText.textContent = `第 ${adminUserState.page} 页 / 共 ${adminUserState.total} 条`;
+    el.adminUsersList.innerHTML = "";
+    data.users.forEach((u) => {
+      const div = document.createElement("div");
+      div.className = "task";
+      div.innerHTML = `
+        <strong>#${u.id} ${u.username}</strong><br/>
+        状态: ${u.status} | 管理员: ${u.is_admin ? "yes" : "no"} |
+        积分: ${u.available_points}/${u.frozen_points} | 信誉: ${u.reputation_score}
+      `;
+      div.addEventListener("click", () => {
+        el.adminTargetUserId.value = u.id;
+        el.adminTargetStatus.value = u.status;
+      });
+      el.adminUsersList.appendChild(div);
+    });
+    if (data.users.length === 0) {
+      el.adminUsersList.innerHTML = '<div class="empty">没有匹配用户</div>';
+    }
+    log("加载用户列表成功", { page: adminUserState.page, count: data.users.length });
+  } catch (err) {
+    log("加载用户列表失败", { error: err.message });
+  } finally {
+    setButtonLoading(el.loadAdminUsersBtn, false);
+  }
+}
+
+el.loadMyTasksBtn.addEventListener("click", async () => {
+  myTaskState.page = 1;
+  await loadMyTasks();
+});
+el.myTaskMode.addEventListener("change", async () => {
+  myTaskState.page = 1;
+  await loadMyTasks();
+});
+el.myTaskStatus.addEventListener("change", async () => {
+  myTaskState.page = 1;
+  await loadMyTasks();
+});
+el.myTaskPrevBtn.addEventListener("click", async () => {
+  if (myTaskState.page <= 1) return;
+  myTaskState.page -= 1;
+  await loadMyTasks();
+});
+el.myTaskNextBtn.addEventListener("click", async () => {
+  if (!myTaskState.hasNext) return;
+  myTaskState.page += 1;
+  await loadMyTasks();
+});
+
+el.loadAdminUsersBtn.addEventListener("click", async () => {
+  adminUserState.page = 1;
+  await loadAdminUsers();
+});
+el.adminUserStatusFilter.addEventListener("change", async () => {
+  adminUserState.page = 1;
+  await loadAdminUsers();
+});
+el.adminUserSearchQ.addEventListener("change", async () => {
+  adminUserState.page = 1;
+  await loadAdminUsers();
+});
+el.adminUserPrevBtn.addEventListener("click", async () => {
+  if (adminUserState.page <= 1) return;
+  adminUserState.page -= 1;
+  await loadAdminUsers();
+});
+el.adminUserNextBtn.addEventListener("click", async () => {
+  if (!adminUserState.hasNext) return;
+  adminUserState.page += 1;
+  await loadAdminUsers();
+});
+el.adminUpdateUserStatusBtn.addEventListener("click", async () => {
+  const userId = Number(el.adminTargetUserId.value || 0);
+  if (!userId) {
+    log("请先填写目标用户ID");
+    return;
+  }
+  try {
+    const data = await api(`/api/admin/users/${userId}/status`, "POST", {
+      status: el.adminTargetStatus.value,
+      note: el.adminStatusNote.value.trim(),
+    });
+    log("更新用户状态成功", data);
+    await loadAdminUsers();
+  } catch (err) {
+    log("更新用户状态失败", { error: err.message });
+  }
+});
+
+el.initDemoDataBtn.addEventListener("click", async () => {
+  setButtonLoading(el.initDemoDataBtn, true, "初始化中...");
+  try {
+    const data = await api("/api/admin/demo/init", "POST", {});
+    log("初始化演示数据成功", data);
+    await refreshTasks();
+    await loadAdminUsers();
+  } catch (err) {
+    log("初始化演示数据失败", { error: err.message });
+  } finally {
+    setButtonLoading(el.initDemoDataBtn, false);
   }
 });
 
