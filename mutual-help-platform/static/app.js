@@ -80,6 +80,13 @@ const el = {
   adminTargetStatus: document.getElementById("adminTargetStatus"),
   adminStatusNote: document.getElementById("adminStatusNote"),
   adminUpdateUserStatusBtn: document.getElementById("adminUpdateUserStatusBtn"),
+  auditActionFilter: document.getElementById("auditActionFilter"),
+  auditTargetTypeFilter: document.getElementById("auditTargetTypeFilter"),
+  loadAuditLogsBtn: document.getElementById("loadAuditLogsBtn"),
+  auditPrevBtn: document.getElementById("auditPrevBtn"),
+  auditNextBtn: document.getElementById("auditNextBtn"),
+  auditPaginationText: document.getElementById("auditPaginationText"),
+  auditLogsBox: document.getElementById("auditLogsBox"),
 };
 
 const taskState = { page: 1, pageSize: 10, hasNext: false, total: 0 };
@@ -87,6 +94,7 @@ const reportState = { page: 1, pageSize: 10, hasNext: false, total: 0 };
 const detailAnswerState = { page: 1, pageSize: 5, hasNext: false, total: 0 };
 const myTaskState = { page: 1, pageSize: 5, hasNext: false, total: 0 };
 const adminUserState = { page: 1, pageSize: 10, hasNext: false, total: 0 };
+const auditState = { page: 1, pageSize: 20, hasNext: false, total: 0 };
 
 function log(message, data) {
   const line = `[${new Date().toLocaleTimeString()}] ${message}`;
@@ -593,6 +601,28 @@ async function loadAdminUsers() {
   }
 }
 
+async function loadAuditLogs() {
+  setButtonLoading(el.loadAuditLogsBtn, true, "加载中...");
+  try {
+    const params = new URLSearchParams({
+      action: el.auditActionFilter.value || "all",
+      target_type: el.auditTargetTypeFilter.value || "all",
+      page: String(auditState.page),
+      page_size: String(auditState.pageSize),
+    });
+    const data = await api(`/api/admin/audit-logs?${params.toString()}`);
+    auditState.hasNext = Boolean(data.pagination?.has_next);
+    auditState.total = Number(data.pagination?.total || 0);
+    el.auditPaginationText.textContent = `第 ${auditState.page} 页 / 共 ${auditState.total} 条`;
+    el.auditLogsBox.textContent = JSON.stringify(data, null, 2);
+    log("加载审计日志成功", { page: auditState.page, count: data.logs.length });
+  } catch (err) {
+    log("加载审计日志失败", { error: err.message });
+  } finally {
+    setButtonLoading(el.loadAuditLogsBtn, false);
+  }
+}
+
 el.loadMyTasksBtn.addEventListener("click", async () => {
   myTaskState.page = 1;
   await loadMyTasks();
@@ -668,6 +698,29 @@ el.initDemoDataBtn.addEventListener("click", async () => {
   } finally {
     setButtonLoading(el.initDemoDataBtn, false);
   }
+});
+
+el.loadAuditLogsBtn.addEventListener("click", async () => {
+  auditState.page = 1;
+  await loadAuditLogs();
+});
+el.auditActionFilter.addEventListener("change", async () => {
+  auditState.page = 1;
+  await loadAuditLogs();
+});
+el.auditTargetTypeFilter.addEventListener("change", async () => {
+  auditState.page = 1;
+  await loadAuditLogs();
+});
+el.auditPrevBtn.addEventListener("click", async () => {
+  if (auditState.page <= 1) return;
+  auditState.page -= 1;
+  await loadAuditLogs();
+});
+el.auditNextBtn.addEventListener("click", async () => {
+  if (!auditState.hasNext) return;
+  auditState.page += 1;
+  await loadAuditLogs();
 });
 
 refreshSession();

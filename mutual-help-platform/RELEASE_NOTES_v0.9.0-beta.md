@@ -22,8 +22,10 @@
 5. `GET /api/admin/users`
 6. `POST /api/admin/users/{id}/status`
 7. `POST /api/admin/demo/init`
+8. `GET /api/admin/audit-logs`
 
 ## 兼容说明
 
 - 接口错误格式统一为：`ok=false + error + error_code + version`。
 - 前端已适配错误码展示。
+- 新增一键内测脚本：`scripts/beta_start.sh`。

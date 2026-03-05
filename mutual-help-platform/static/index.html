@@ -224,6 +224,34 @@
       <input id="adminStatusNote" placeholder="处理说明（可选）" />
       <button id="adminUpdateUserStatusBtn">更新用户状态</button>
     </section>
+
+    <section class="card">
+      <h2>管理员审计日志</h2>
+      <div class="row">
+        <select id="auditActionFilter">
+          <option value="all">all actions</option>
+          <option value="settle_task">settle_task</option>
+          <option value="auto_settle_task">auto_settle_task</option>
+          <option value="resolve_report">resolve_report</option>
+          <option value="update_user_status">update_user_status</option>
+          <option value="adjust_reputation">adjust_reputation</option>
+        </select>
+        <select id="auditTargetTypeFilter">
+          <option value="all">all targets</option>
+          <option value="task">task</option>
+          <option value="answer">answer</option>
+          <option value="report">report</option>
+          <option value="user">user</option>
+        </select>
+        <button id="loadAuditLogsBtn" class="ghost">加载审计日志</button>
+      </div>
+      <div class="row">
+        <button id="auditPrevBtn" class="ghost">上一页</button>
+        <button id="auditNextBtn" class="ghost">下一页</button>
+        <div id="auditPaginationText" class="tip">第 1 页</div>
+      </div>
+      <pre id="auditLogsBox" class="panel"></pre>
+    </section>
   </main>
   <script src="/app.js"></script>
 </body>

@@ -1250,6 +1250,53 @@ class AppHandler(BaseHTTPRequestHandler):
                         },
                     )
 
+                if parsed.path == "/api/admin/audit-logs":
+                    if not user or not user["is_admin"]:
+                        return self.send_api_error(403, "admin only", "ADMIN_ONLY")
+                    query = parse_qs(parsed.query)
+                    action = query.get("action", ["all"])[0].strip()
+                    target_type = query.get("target_type", ["all"])[0].strip()
+                    page = parse_int(query.get("page", [1])[0], 1, 1, 10**6)
+                    page_size = parse_int(query.get("page_size", [20])[0], 20, 1, 100)
+                    where = ["1=1"]
+                    params = []
+                    if action != "all":
+                        where.append("a.action = ?")
+                        params.append(action)
+                    if target_type != "all":
+                        where.append("a.target_type = ?")
+                        params.append(target_type)
+                    where_sql = " AND ".join(where)
+                    total = conn.execute(
+                        f"SELECT COUNT(1) AS total FROM audit_logs a WHERE {where_sql}",
+                        tuple(params),
+                    ).fetchone()["total"]
+                    offset = (page - 1) * page_size
+                    rows = conn.execute(
+                        f"""
+                        SELECT a.*, u.username AS operator_name
+                        FROM audit_logs a
+                        LEFT JOIN users u ON u.id = a.operator_id
+                        WHERE {where_sql}
+                        ORDER BY a.created_at DESC
+                        LIMIT ? OFFSET ?
+                        """,
+                        tuple(params + [page_size, offset]),
+                    ).fetchall()
+                    return self.send_json(
+                        200,
+                        {
+                            "ok": True,
+                            "logs": [dict(r) for r in rows],
+                            "pagination": {
+                                "total": total,
+                                "page": page,
+                                "page_size": page_size,
+                                "has_next": (offset + len(rows)) < total,
+                            },
+                        },
+                    )
+
                 return self.send_api_error(404, "not found", "NOT_FOUND")
             finally:
                 conn.close()

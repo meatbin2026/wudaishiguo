@@ -49,6 +49,7 @@ python3 server.py
 18. `GET /api/admin/system/stats`
 19. `GET /api/version`
 20. `POST /api/admin/demo/init`
+21. `GET /api/admin/audit-logs`
 
 ## 查询参数
 
