@@ -13,12 +13,12 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 BASE_DIR = Path(__file__).resolve().parent
-DB_PATH = BASE_DIR / "app.db"
-STATIC_DIR = BASE_DIR / "static"
-QUALITY_RULES_PATH = BASE_DIR / "quality_rules.json"
+DB_PATH = Path(os.getenv("DB_PATH", str(BASE_DIR / "app.db"))).resolve()
+STATIC_DIR = Path(os.getenv("STATIC_DIR", str(BASE_DIR / "static"))).resolve()
+QUALITY_RULES_PATH = Path(os.getenv("QUALITY_RULES_PATH", str(BASE_DIR / "quality_rules.json"))).resolve()
 HOST = os.getenv("HOST", "127.0.0.1")
 PORT = int(os.getenv("PORT", "8000"))
-APP_VERSION = "0.9.0-beta"
+APP_VERSION = "0.9.2-beta"
 SESSION_HOURS = 24 * 7
 AUTO_SETTLE_HOURS = 72
 AUTO_SETTLE_INTERVAL_SECONDS = 60

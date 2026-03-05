@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 import hashlib
 import json
+import os
 import secrets
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DB_PATH = ROOT / "app.db"
+DB_PATH = Path(os.getenv("DB_PATH", str(ROOT / "app.db"))).resolve()
 
 
 def now_iso():
@@ -102,7 +103,7 @@ def create_demo_answer(conn, task_id, author_id, content, score):
 
 def main():
     if not DB_PATH.exists():
-        raise SystemExit("app.db not found. Please start server once to initialize database.")
+        raise SystemExit(f"database not found: {DB_PATH}. Please start server once to initialize database.")
     conn = sqlite3.connect(DB_PATH)
     try:
         admin_id = upsert_user(conn, "admin_demo", "admin123", is_admin=True, available_points=500)

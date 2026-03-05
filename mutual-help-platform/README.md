@@ -13,12 +13,28 @@
 
 ## 运行方式
 
+### 方式 A：本机 Python
+
 ```bash
 cd /Users/zhangbin/Desktop/AIcode/mutual-help-platform
 python3 server.py
 ```
 
 启动后访问：`http://127.0.0.1:8000`
+
+### 方式 B：Docker Compose（推荐）
+
+```bash
+cd /Users/zhangbin/Desktop/AIcode/mutual-help-platform
+mkdir -p data
+docker compose up -d --build
+```
+
+停止：
+
+```bash
+docker compose down
+```
 
 ## 默认规则
 
@@ -95,20 +111,26 @@ python3 server.py
 4. 轻量频率限制（按用户/IP）：注册、登录、发任务、提交回答、举报
 5. 统一错误结构：`error` + `error_code`
 
-## 数据文件
+## 数据文件与环境变量
 
-- SQLite 数据库：`app.db`（首次启动自动创建）
+1. SQLite 数据库：默认 `app.db`（可用 `DB_PATH` 自定义）
+2. 可选环境变量：
+- `HOST`（默认 `127.0.0.1`）
+- `PORT`（默认 `8000`）
+- `DB_PATH`（示例：`/data/app.db`）
+- `QUALITY_RULES_PATH`（默认 `quality_rules.json`）
 
 ## 部署与自检
 
 1. 启动脚本：`scripts/start_prod.sh`
 1.5 一键内测启动（含预检查）：`HOST=0.0.0.0 PORT=8000 bash scripts/beta_start.sh`
 1.6 一键内测启动 + 冒烟：`RUN_SMOKE=1 HOST=0.0.0.0 PORT=8000 bash scripts/beta_start.sh`
-2. 冒烟测试：`python3 scripts/smoke_test.py http://127.0.0.1:8000`
-3. 备份数据库：`bash scripts/backup_db.sh`
-4. 恢复数据库（先停服务）：`CONFIRM_RESTORE=YES bash scripts/restore_db.sh backups/app_YYYYMMDD_HHMMSS.db`
-5. 演示数据初始化：`python3 scripts/seed_demo.py`
-6. 内测部署文档：[/Users/zhangbin/Desktop/AIcode/mutual-help-platform/DEPLOY.md](/Users/zhangbin/Desktop/AIcode/mutual-help-platform/DEPLOY.md)
-7. 发布检查清单：[/Users/zhangbin/Desktop/AIcode/mutual-help-platform/INTERNAL_BETA_CHECKLIST.md](/Users/zhangbin/Desktop/AIcode/mutual-help-platform/INTERNAL_BETA_CHECKLIST.md)
-8. 版本发布说明：[/Users/zhangbin/Desktop/AIcode/mutual-help-platform/RELEASE_NOTES_v0.9.0-beta.md](/Users/zhangbin/Desktop/AIcode/mutual-help-platform/RELEASE_NOTES_v0.9.0-beta.md)
-9. 内测操作手册：[/Users/zhangbin/Desktop/AIcode/mutual-help-platform/BETA_OPERATOR_GUIDE.md](/Users/zhangbin/Desktop/AIcode/mutual-help-platform/BETA_OPERATOR_GUIDE.md)
+2. Docker 启动：`docker compose up -d --build`
+3. 冒烟测试：`python3 scripts/smoke_test.py http://127.0.0.1:8000`
+4. 备份数据库：`bash scripts/backup_db.sh`
+5. 恢复数据库（先停服务）：`CONFIRM_RESTORE=YES bash scripts/restore_db.sh backups/app_YYYYMMDD_HHMMSS.db`
+6. 演示数据初始化：`python3 scripts/seed_demo.py`
+7. 内测部署文档：[/Users/zhangbin/Desktop/AIcode/mutual-help-platform/DEPLOY.md](/Users/zhangbin/Desktop/AIcode/mutual-help-platform/DEPLOY.md)
+8. 发布检查清单：[/Users/zhangbin/Desktop/AIcode/mutual-help-platform/INTERNAL_BETA_CHECKLIST.md](/Users/zhangbin/Desktop/AIcode/mutual-help-platform/INTERNAL_BETA_CHECKLIST.md)
+9. 版本发布说明：[/Users/zhangbin/Desktop/AIcode/mutual-help-platform/RELEASE_NOTES_v0.9.2-beta.md](/Users/zhangbin/Desktop/AIcode/mutual-help-platform/RELEASE_NOTES_v0.9.2-beta.md)
+10. 内测操作手册：[/Users/zhangbin/Desktop/AIcode/mutual-help-platform/BETA_OPERATOR_GUIDE.md](/Users/zhangbin/Desktop/AIcode/mutual-help-platform/BETA_OPERATOR_GUIDE.md)

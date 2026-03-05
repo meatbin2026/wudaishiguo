@@ -2,9 +2,19 @@
 
 ## 1. 启动服务
 
+方式 A（Python）：
+
 ```bash
 cd /Users/zhangbin/Desktop/AIcode/mutual-help-platform
-python3 server.py
+HOST=0.0.0.0 PORT=8000 DB_PATH=./app.db bash scripts/beta_start.sh
+```
+
+方式 B（Docker）：
+
+```bash
+cd /Users/zhangbin/Desktop/AIcode/mutual-help-platform
+mkdir -p data
+docker compose up -d --build
 ```
 
 打开：`http://127.0.0.1:8000`

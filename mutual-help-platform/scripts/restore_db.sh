@@ -7,7 +7,7 @@ if [[ $# -lt 1 ]]; then
 fi
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TARGET_DB="${ROOT_DIR}/app.db"
+TARGET_DB="${DB_PATH:-${ROOT_DIR}/app.db}"
 BACKUP_FILE="$1"
 
 if [[ ! -f "${BACKUP_FILE}" ]]; then

@@ -1,0 +1,13 @@
+services:
+  app:
+    build: .
+    container_name: mutual-help-app
+    restart: unless-stopped
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8000
+      DB_PATH: /data/app.db
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/data

@@ -3,10 +3,12 @@
 ## A. 发布前
 
 1. 启动服务：`HOST=0.0.0.0 PORT=8000 ./scripts/start_prod.sh`
-2. 健康检查：`curl http://127.0.0.1:8000/api/health`
-3. 冒烟测试：`python3 scripts/smoke_test.py http://127.0.0.1:8000`
-4. 备份数据库：`bash scripts/backup_db.sh`
-5. 检查管理员账号可登录并可访问：
+2. 或 Docker 启动：`docker compose up -d --build`
+3. 健康检查：`curl http://127.0.0.1:8000/api/health`
+4. 版本检查：`curl http://127.0.0.1:8000/api/version`
+5. 冒烟测试：`python3 scripts/smoke_test.py http://127.0.0.1:8000`
+6. 备份数据库：`bash scripts/backup_db.sh`
+7. 检查管理员账号可登录并可访问：
 - 举报处理
 - 用户管理
 - 评分规则查看/重载
