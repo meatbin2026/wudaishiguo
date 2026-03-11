@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="paper" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#f4ead4" stop-opacity="0.95" />
+      <stop offset="60%" stop-color="#e5d1b0" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#c8a982" stop-opacity="0.85" />
+    </linearGradient>
+    <linearGradient id="inkWash" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#1f1b1d" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#1f1b1d" stop-opacity="0" />
+    </linearGradient>
+    <radialGradient id="mist" cx="30%" cy="20%" r="70%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="mist2" cx="75%" cy="10%" r="70%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+    </radialGradient>
+    <filter id="blur" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="10" />
+    </filter>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#paper)" />
+
+  <g opacity="0.6">
+    <path d="M0 520 Q260 460 520 500 T1040 520 T1600 500 V900 H0Z" fill="#3c2f28" opacity="0.2" />
+    <path d="M0 580 Q260 520 520 560 T1040 580 T1600 560 V900 H0Z" fill="#2d2320" opacity="0.25" />
+    <path d="M0 640 Q260 600 520 620 T1040 640 T1600 620 V900 H0Z" fill="#201a18" opacity="0.35" />
+  </g>
+
+  <g opacity="0.55">
+    <path d="M120 470 Q220 400 360 430 Q420 440 480 420 Q560 390 620 410 Q740 450 860 430 Q980 410 1080 450 Q1220 510 1380 470 Q1500 450 1600 480" fill="none" stroke="#1b1716" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+
+  <g opacity="0.5">
+    <path d="M160 500 Q280 470 400 490" fill="none" stroke="#2b2322" stroke-width="6" stroke-linecap="round" />
+    <path d="M900 520 Q1040 500 1160 520" fill="none" stroke="#2b2322" stroke-width="6" stroke-linecap="round" />
+  </g>
+
+  <g opacity="0.6">
+    <path d="M980 520 L1030 430 L1100 520 Z" fill="#1a1413" opacity="0.55" />
+    <path d="M1030 430 L1030 360" stroke="#1a1413" stroke-width="6" />
+    <path d="M1030 360 L1110 380 L1030 400" fill="#1a1413" opacity="0.6" />
+
+    <path d="M1180 540 L1220 470 L1270 540 Z" fill="#1a1413" opacity="0.5" />
+    <path d="M1220 470 L1220 420" stroke="#1a1413" stroke-width="5" />
+    <path d="M1220 420 L1280 435 L1220 450" fill="#1a1413" opacity="0.55" />
+  </g>
+
+  <g id="war-silhouettes" opacity="0.38" fill="#201815">
+    <path d="M220 640 q40 -35 90 -18 q20 6 36 28 q-10 14 -30 14 h-88 q-22 0 -8 -24z" />
+    <circle cx="250" cy="610" r="10" />
+    <rect x="242" y="618" width="16" height="18" rx="4" />
+    <path d="M280 612 l12 -22 l6 4 l-8 20z" />
+    <path d="M198 646 q-30 10 -34 24 q30 6 48 -4z" />
+
+    <path d="M360 658 q46 -38 96 -14 q18 10 28 32 q-8 14 -28 14 h-92 q-24 0 -4 -32z" />
+    <circle cx="386" cy="628" r="9" />
+    <rect x="378" y="636" width="16" height="16" rx="4" />
+    <path d="M412 632 l18 -20 l6 6 l-12 18z" />
+    <path d="M330 668 q-22 10 -24 22 q24 6 42 -2z" />
+
+    <path d="M520 665 q14 -28 28 -40 q12 -8 24 4 q-6 26 -8 48 z" />
+    <circle cx="536" cy="616" r="8" />
+    <path d="M548 624 l-2 44" stroke="#201815" stroke-width="6" />
+    <path d="M548 624 l42 -10 l-10 18z" />
+
+    <path d="M610 682 q20 -28 46 -42 q12 -6 22 8 q-6 26 -8 46z" />
+    <circle cx="634" cy="634" r="8" />
+    <path d="M644 640 l0 44" stroke="#201815" stroke-width="6" />
+    <path d="M644 640 l44 -8 l-10 16z" />
+
+    <path d="M940 700 q120 -40 260 0 v22 h-260z" opacity="0.35" />
+    <rect x="1000" y="676" width="120" height="26" rx="6" />
+    <circle cx="1020" cy="708" r="12" />
+    <circle cx="1110" cy="708" r="12" />
+    <path d="M1038 660 l0 -34 l8 0 l-4 34z" />
+    <path d="M1038 626 l50 -10 l-8 18z" />
+
+    <path d="M1220 680 q50 -30 100 -18 q16 4 28 20 q-8 12 -26 12 h-96 q-18 0 -6 -14z" />
+    <circle cx="1248" cy="652" r="8" />
+    <rect x="1240" y="660" width="16" height="16" rx="4" />
+    <path d="M1268 656 l16 -18 l6 6 l-10 16z" />
+  </g>
+
+  <rect width="1600" height="900" fill="url(#inkWash)" />
+  <rect width="1600" height="900" fill="url(#mist)" filter="url(#blur)" />
+  <rect width="1600" height="900" fill="url(#mist2)" filter="url(#blur)" />
+
+  <g opacity="0.35">
+    <circle cx="220" cy="140" r="38" fill="#2b2220" />
+    <circle cx="260" cy="190" r="20" fill="#2b2220" />
+    <circle cx="1240" cy="160" r="26" fill="#2b2220" />
+    <circle cx="1300" cy="210" r="18" fill="#2b2220" />
+  </g>
+</svg>

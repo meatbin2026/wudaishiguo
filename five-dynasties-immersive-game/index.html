@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>五代十国·乱世长卷</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main id="app">
+    <section id="screen-intro" class="screen active" aria-labelledby="intro-title">
+      <div class="intro-ornament"></div>
+      <div class="intro-card">
+        <p class="intro-kicker">五代十国 · 乱世长卷</p>
+        <h1 id="intro-title">沉浸式权谋 RPG</h1>
+        <p class="intro-sub">选你之身 · 走你之路 · 改写史潮</p>
+        <div class="intro-actions">
+          <button id="btn-start" class="btn btn-primary" type="button">开始游历</button>
+          <button id="btn-continue" class="btn btn-ghost" type="button">继续上次</button>
+        </div>
+        <p class="intro-foot">基于历史骨架创作，剧情为戏剧化虚构。</p>
+      </div>
+    </section>
+
+    <section id="screen-roles" class="screen" aria-labelledby="roles-title">
+      <header class="section-header">
+        <h2 id="roles-title">选择你的角色</h2>
+        <p>十八条命运线，每一个人都有自己的刀与胆。</p>
+      </header>
+      <div id="roles-grid" class="roles-grid"></div>
+      <div class="section-actions">
+        <button id="btn-back-intro" class="btn btn-ghost" type="button">返回</button>
+      </div>
+    </section>
+
+    <section id="screen-story" class="screen" aria-live="polite">
+      <header id="status-bar" class="status-bar">
+        <div class="status-left">
+          <div class="status-role" id="status-role">—</div>
+          <div class="status-chapter" id="status-chapter">第 一 回</div>
+        </div>
+        <div class="status-right">
+          <button id="btn-toggle-stats" class="btn btn-mini" type="button">数值</button>
+          <button id="btn-reset" class="btn btn-mini" type="button">重启</button>
+        </div>
+      </header>
+
+      <section id="stats-panel" class="stats-panel"></section>
+
+      <div class="story-layout">
+        <article class="story-card">
+          <div class="story-head">
+            <div class="story-location" id="story-location">—</div>
+            <h2 class="story-title" id="story-title">—</h2>
+          </div>
+          <div id="story-text" class="story-text"></div>
+        </article>
+
+        <aside class="story-aside">
+          <div class="quote-card">
+            <div class="quote-speaker" id="quote-speaker">—</div>
+            <div id="quote-text" class="quote-text">—</div>
+          </div>
+          <div class="chronicle">
+            <div class="chronicle-title">史略</div>
+            <ul id="chronicle-list" class="chronicle-list"></ul>
+          </div>
+        </aside>
+      </div>
+
+      <div id="options" class="options"></div>
+    </section>
+
+    <section id="screen-ending" class="screen" aria-labelledby="ending-title">
+      <div class="ending-card">
+        <p class="ending-kicker">终章</p>
+        <h2 id="ending-title">—</h2>
+        <div id="ending-text" class="ending-text"></div>
+        <div class="ending-actions">
+          <button id="btn-restart" class="btn btn-primary" type="button">再入乱世</button>
+          <button id="btn-back-roles" class="btn btn-ghost" type="button">更换角色</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="engine.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
