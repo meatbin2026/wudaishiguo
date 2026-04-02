@@ -1,0 +1,14 @@
+<svg width="300" height="260" viewBox="0 0 300 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="150" cy="232" rx="80" ry="18" fill="#23435A" fill-opacity="0.16"/>
+  <rect x="34" y="28" width="232" height="148" rx="18" fill="#355B4D"/>
+  <rect x="46" y="40" width="208" height="124" rx="12" fill="#3F6B59" stroke="#D5F1DE" stroke-width="4"/>
+  <rect x="24" y="176" width="252" height="20" rx="10" fill="#AE744C"/>
+  <rect x="54" y="196" width="34" height="24" rx="10" fill="#AE744C"/>
+  <rect x="212" y="196" width="34" height="24" rx="10" fill="#AE744C"/>
+  <text x="150" y="98" text-anchor="middle" fill="#F5FFF7" font-size="42" font-family="Trebuchet MS, Verdana, sans-serif" font-weight="700">ABC</text>
+  <circle cx="108" cy="126" r="8" fill="#F7FFF9"/>
+  <circle cx="192" cy="126" r="8" fill="#F7FFF9"/>
+  <path d="M112 146C126 160 142 166 150 166C158 166 174 160 188 146" stroke="#D5F1DE" stroke-width="10" stroke-linecap="round"/>
+  <path d="M90 58L116 78" stroke="#D5F1DE" stroke-width="6" stroke-linecap="round"/>
+  <path d="M210 58L184 78" stroke="#D5F1DE" stroke-width="6" stroke-linecap="round"/>
+</svg>

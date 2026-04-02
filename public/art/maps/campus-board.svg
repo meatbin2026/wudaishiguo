@@ -1,0 +1,11 @@
+<svg width="280" height="120" viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="12" y="10" width="256" height="86" rx="18" fill="#FFF5D8"/>
+  <rect x="28" y="24" width="224" height="58" rx="12" fill="#FFFDF3"/>
+  <path d="M30 98H250" stroke="#A86F4A" stroke-width="12" stroke-linecap="round"/>
+  <path d="M60 98V116" stroke="#A86F4A" stroke-width="10" stroke-linecap="round"/>
+  <path d="M220 98V116" stroke="#A86F4A" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="52" cy="38" r="8" fill="#FF8E66"/>
+  <circle cx="228" cy="38" r="8" fill="#5EAFD9"/>
+  <text x="140" y="49" text-anchor="middle" fill="#3D5E76" font-size="22" font-family="Trebuchet MS, Verdana, sans-serif" font-weight="700">今日值日</text>
+  <text x="140" y="74" text-anchor="middle" fill="#5C748A" font-size="14" font-family="Trebuchet MS, Verdana, sans-serif" font-weight="600">作业本怪 / 纸飞机怪 / 铅笔刺球</text>
+</svg>
